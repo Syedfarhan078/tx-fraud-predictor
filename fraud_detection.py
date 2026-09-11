@@ -1,0 +1,84 @@
+import streamlit as st
+import pandas as pd
+import joblib
+import base64
+
+
+def add_bg_video(video_file_path: str):
+    """Encodes a local MP4 video and sets it as the background."""
+    with open(video_file_path, "rb") as file:
+        video_bytes = file.read()
+    
+    encoded_video = base64.b64encode(video_bytes).decode("utf-8")
+
+    video_html = f"""
+    <style>
+    /* Make Streamlit's default background transparent */
+    .stApp {{
+        background: transparent;
+    }}
+
+    /* Position the video behind all app elements */
+    #bg-video {{
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100vw;
+        min-height: 100vh;
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+        z-index: -1;
+        opacity: 0.25; /* Lower opacity keeps UI inputs readable */
+        filter: brightness(0.6);
+    }}
+    </style>
+
+    <video id="bg-video" autoplay loop muted playsinline>
+        <source src="data:video/mp4;base64,{encoded_video}" type="video/mp4">
+    </video>
+    """
+    st.markdown(video_html, unsafe_allow_html=True)
+
+
+add_bg_video("background.mp4")
+
+
+st.title("Fraud Detection Prediction App")
+
+model = joblib.load("fraud_detection_pipeline.pkl")
+
+st.markdown("Please enter the transaction details and use the predic button")
+
+st.divider()
+
+transaction_type = st.selectbox("Transaction Type", ["PAYMENT", "TRANSFER", "CASH_OUT", "DEPOSIT"])
+
+amount = st.number_input("Amount", min_value=0.0, value=1000.0)
+
+oldbalanceOrg = st.number_input("Old Balance (Sender)", min_value=0.0, value=10000.0)
+newbalanceOrig = st.number_input("New Balance (Sender)", min_value=0.0, value=9000.0)
+
+oldbalanceDest = st.number_input("Old Balance (Receiver)", min_value=0.0, value=0.0)
+newbalanceDest = st.number_input("New Balance (Receiver)", min_value=0.0, value=0.0)
+
+if st.button("Predict"):
+    input_data = pd.DataFrame([{
+        "type": transaction_type,
+        "amount": amount,
+        "oldbalanceOrg": oldbalanceOrg,
+        "newbalanceOrig": newbalanceOrig,
+        "oldbalanceDest": oldbalanceDest,
+        "newbalanceDest": newbalanceDest
+    }])
+
+
+    prediction = model.predict(input_data)[0]
+
+    st.subheader(f"Prediction : '{int(prediction)}'")
+
+    if prediction == 1:
+        st.error("This transaction can be fraud")
+    else:
+        st.success("This transaction looks like it is not a fraud")
+

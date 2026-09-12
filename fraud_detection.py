@@ -52,7 +52,7 @@ st.markdown("Please enter the transaction details and use the predic button")
 
 st.divider()
 
-transaction_type = st.selectbox("Transaction Type", ["PAYMENT", "TRANSFER", "CASH_OUT", "DEPOSIT"])
+transaction_type = st.selectbox("Transaction Type", ["PAYMENT", "TRANSFER", "CASH_OUT", "DEBIT"])
 
 amount = st.number_input("Amount", min_value=0.0, value=1000.0)
 

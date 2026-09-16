@@ -84,22 +84,31 @@ with col6:
         st.error("Mismatch in sended and updated amount")
 
 if st.button("Predict"):
-    input_data = pd.DataFrame([{
-        "type": transaction_type,
-        "amount": amount,
-        "oldbalanceOrg": oldbalanceOrg,
-        "newbalanceOrig": newbalanceOrig,
-        "oldbalanceDest": oldbalanceDest,
-        "newbalanceDest": newbalanceDest
-    }])
+    # Check if any ledger rules failed
+    sender_final = oldbalanceOrg - amount
+    receiver_final = oldbalanceDest + amount
+    
+    is_math_invalid = (newbalanceOrig != sender_final) or (newbalanceDest != receiver_final) or (amount > oldbalanceOrg)
 
-
-    prediction = model.predict(input_data)[0]
-
-    st.subheader(f"Prediction : '{int(prediction)}'")
-
-    if prediction == 1:
-        st.error("This transaction can be fraud")
+    if is_math_invalid:
+        # Hard override: Force fraud prediction due to broken math
+        st.subheader("Prediction : '1'")
+        st.error("🚨 Flagged by Ledger Guard: Invalid mathematical balance change detected. Transaction classified as potential fraud.")
     else:
-        st.success("This transaction looks like it is not a fraud")
+        # Fall back to standard ML prediction if math checks out
+        input_data = pd.DataFrame([{
+            "type": transaction_type,
+            "amount": amount,
+            "oldbalanceOrg": oldbalanceOrg,
+            "newbalanceOrig": newbalanceOrig,
+            "oldbalanceDest": oldbalanceDest,
+            "newbalanceDest": newbalanceDest
+        }])
 
+        prediction = model.predict(input_data)[0]
+        st.subheader(f"Prediction : '{int(prediction)}'")
+
+        if prediction == 1:
+            st.error("This transaction can be fraud")
+        else:
+            st.success("This transaction looks like it is not a fraud")

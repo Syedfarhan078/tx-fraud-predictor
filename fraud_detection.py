@@ -49,7 +49,7 @@ st.write("Please enter the transaction details and use the predict button")
 
 model = joblib.load("fraud_detection_pipeline.pkl")
 
-col1, col2 = st.column(2)
+col1, col2 = st.columns(2)
 with col1:
     transaction_type = st.selectbox("Transaction Type", ["PAYMENT", "TRANSFER", "CASH_OUT", "DEBIT"])
 with col2:
@@ -58,7 +58,7 @@ with col2:
 st.markdown("---")
 st.subheader("Sender Details")
 
-col3, col4 = st.column(2)
+col3, col4 = st.columns(2)
 
 with col3:
     oldbalanceOrg = st.number_input("Old Balance (Sender)", min_value=0.0, value=10000.0)

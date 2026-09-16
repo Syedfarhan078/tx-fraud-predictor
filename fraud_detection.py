@@ -74,7 +74,7 @@ newbalanceDest = st.number_input("New Balance (Receiver)", min_value=0.0, value=
 receiver_final = oldbalanceDest + amount
 
 if newbalanceDest != reciever_final:
-    st.error("Mismatch in sended and updated amount)
+    st.error("Mismatch in sended and updated amount")
 
 if st.button("Predict"):
     input_data = pd.DataFrame([{

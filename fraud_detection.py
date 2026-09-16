@@ -71,6 +71,11 @@ if newbalanceOrig != sender_final:
 oldbalanceDest = st.number_input("Old Balance (Receiver)", min_value=0.0, value=0.0)
 newbalanceDest = st.number_input("New Balance (Receiver)", min_value=0.0, value=0.0)
 
+receiver_final = oldbalanceDest + amount
+
+if newbalanceDest != reciever_final:
+    st.error("Mismatch in sended and updated amount)
+
 if st.button("Predict"):
     input_data = pd.DataFrame([{
         "type": transaction_type,
